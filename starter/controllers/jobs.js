@@ -31,20 +31,31 @@ const createJobs = async (req,res)=>{
 const updateJobs = async (req,res)=>{
     const {body:{company,position},user:{userId},params:{id:jobId}}=req
 
-    if(company==='', position===""){
+    if(company===''||position===""){
         throw new BadRequestError('please provide name &position of the company')
     }
 
     const job = await Job.findByIdAndUpdate({_id:jobId,createdBy:userId},req.body,{new:true,runValidators:true})
+
     if(!job){
         throw new NotFoundError(`no job with id ${jobId}`)
        }
 
-       
+res.status(StatusCodes.OK).json({job})
 
 }
 const deleteJobs = async (req,res)=>{
-    res.send('delete jobs')
+    const {user:{userId},params:{id:jobId}}=req
+
+    const job =await Job.findOneAndDelete({
+        _id:jobId,
+        createdBy:userId
+    })
+    if(!job){
+        throw new NotFoundError(`no job with id ${jobId}`)
+       }
+
+res.status(StatusCodes.OK).send()
 }
 
 
